@@ -1,42 +1,57 @@
 package com.selinlb.demoproject.controller;
 
 import com.selinlb.demoproject.model.Il;
+import com.selinlb.demoproject.service.IlService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("/iller")
+@AllArgsConstructor
 public class IlController {
-    private final List<Il> iller;
 
-    public IlController() {
-        Il il1 = new Il("id1", "İstanbul");
-        Il il2 = new Il("id2", "İzmir");
+    private final IlService ilService;
 
-        iller = Arrays.asList(il1, il2);
+    private Il getIlById(String id) {
+        return ilService.getIlById(id);
     }
 
     @GetMapping
     public ResponseEntity<List<Il>> getIller() {
-        return new ResponseEntity<>(iller, OK);
+        return new ResponseEntity<>(ilService.getIller(), OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Il> getIl(@PathVariable String id) {
-        Il result = iller.stream()
-                .filter(il -> il.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Il bulunamadi."));
+        return new ResponseEntity<>(getIlById(id), OK);
+    }
 
-        return new ResponseEntity<>(result, OK);
+    @PostMapping
+    public ResponseEntity<Il> addIl(@RequestBody Il newIl) {
+        return new ResponseEntity<>(ilService.addIl(newIl), CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateIl(@PathVariable String id, @RequestBody Il newIl) {
+        Il oldIl = getIlById(id);
+        oldIl.setName(newIl.getName());
+        oldIl.setCreateDate(new Date( ));
+        return new ResponseEntity<>(OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteIl(@PathVariable String id) {
+        ilService.deleteIl(id);
+        return new ResponseEntity<>(OK);
     }
 }
