@@ -1,5 +1,6 @@
 package com.selinlb.demoproject.service;
 
+import com.selinlb.demoproject.exception.IlNotFoundException;
 import com.selinlb.demoproject.model.Il;
 import com.selinlb.demoproject.repository.IlRepository;
 import lombok.AllArgsConstructor;
@@ -12,8 +13,12 @@ import java.util.List;
 public class IlService {
     private final IlRepository ilRepository;
 
-    public List<Il> getIller() {
-        return ilRepository.findAll();
+    public List<Il> getIller(String name) {
+        if(name == null) {
+            return ilRepository.findAll();
+        } else {
+            return ilRepository.findByName(name);
+        }
     }
 
     public Il addIl(Il newIl) {
@@ -24,8 +29,13 @@ public class IlService {
         ilRepository.deleteById(id);
     }
 
+    public void updateIl(String id, Il newIl) {
+        Il oldIl = getIlById(id);
+        oldIl.setName(newIl.getName());
+        ilRepository.save(oldIl);
+    }
+
     public Il getIlById(String id) {
-        return null;
-        //return ilRepository.findById(id);
+        return ilRepository.findById(id).orElseThrow(() -> new IlNotFoundException("Il bulunamadi."));
     }
 }

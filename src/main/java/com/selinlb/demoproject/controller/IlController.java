@@ -1,17 +1,15 @@
 package com.selinlb.demoproject.controller;
 
+import com.selinlb.demoproject.exception.IlNotFoundException;
 import com.selinlb.demoproject.model.Il;
 import com.selinlb.demoproject.service.IlService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -27,8 +25,8 @@ public class IlController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Il>> getIller() {
-        return new ResponseEntity<>(ilService.getIller(), OK);
+    public ResponseEntity<List<Il>> getIller(@RequestParam(required = false) String name ) {
+        return new ResponseEntity<>(ilService.getIller(name), OK);
     }
 
     @GetMapping("/{id}")
@@ -43,9 +41,7 @@ public class IlController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateIl(@PathVariable String id, @RequestBody Il newIl) {
-        Il oldIl = getIlById(id);
-        oldIl.setName(newIl.getName());
-        oldIl.setCreateDate(new Date( ));
+        ilService.updateIl(id, newIl);
         return new ResponseEntity<>(OK);
     }
 
@@ -53,5 +49,10 @@ public class IlController {
     public ResponseEntity<Void> deleteIl(@PathVariable String id) {
         ilService.deleteIl(id);
         return new ResponseEntity<>(OK);
+    }
+
+    @ExceptionHandler(IlNotFoundException.class)
+    public ResponseEntity<String> handleException(IlNotFoundException ex) {
+         return new ResponseEntity<>(ex.getMessage(), NOT_FOUND);
     }
 }
